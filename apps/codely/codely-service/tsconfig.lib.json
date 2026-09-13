@@ -1,0 +1,21 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["@cloudflare/workers-types"],
+    "isolatedDeclarations": false
+  },
+  "include": ["src/**/*.ts", "worker-configuration.d.ts"],
+  "exclude": [
+    "dist",
+    "out-tsc",
+    "drizzle",
+    "drizzle.config.ts",
+    "drizzle-local.config.ts",
+    "eslint.config.mjs"
+  ]
+}

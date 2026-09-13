@@ -1,0 +1,291 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/*
+  Register libs/shadcn/src as a scan source so Tailwind picks up the
+  classes used inside the shared components.
+
+  Counting back from apps/codely/codely-web/src/app/global.css:
+    ..              → src/app
+    ../..           → src
+    ../../..        → codely-web
+    ../../../..     → codely
+    ../../../../..  → apps
+  So: ../../../../../libs/shadcn/src
+*/
+@source "../../../../../libs/shadcn/src";
+
+/* shadcn's dark variant. Codely ships dark only, so `dark` is always on <html>. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ---------------------------------------------------------------------------
+   Codely brand tokens. Registered here so utilities (bg-brand, text-xp,
+   border-hairline, …) are generated instead of hard-coding hex across files.
+--------------------------------------------------------------------------- */
+@theme inline {
+  --font-display: var(--font-chakra), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-hairline: var(--hairline);
+
+  --color-level-beginner: var(--level-beginner);
+  --color-level-intermediate: var(--level-intermediate);
+  --color-level-advanced: var(--level-advanced);
+  --color-xp: var(--xp);
+  --color-lang-python: var(--lang-python);
+  --color-lang-web: var(--lang-web);
+}
+
+/*
+  Dark only. The palette lives on :root (not inside .dark) so anything rendered
+  before hydration still paints correctly; `.dark` on <html> only exists so the
+  shadcn components' dark: variants resolve.
+*/
+:root,
+.dark {
+  color-scheme: dark;
+
+  --surface: #0a0a0f;
+  --surface-2: #12121a;
+  --surface-3: #17171f;
+  --hairline: rgb(255 255 255 / 7%);
+
+  --brand: #7c3aed;
+  --brand-strong: #6d28d9;
+  --brand-soft: #a78bfa;
+
+  --level-beginner: #34d399;
+  --level-intermediate: #fbbf24;
+  --level-advanced: #f87171;
+  --xp: #34d399;
+  --lang-python: #60a5fa;
+  --lang-web: #fb923c;
+
+  /* shadcn surface mapping */
+  --background: var(--surface);
+  --foreground: #f5f5f7;
+  --card: var(--surface-2);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand);
+  --primary-foreground: #ffffff;
+  --secondary: rgb(255 255 255 / 6%);
+  --secondary-foreground: var(--foreground);
+  --muted: rgb(255 255 255 / 6%);
+  --muted-foreground: #9ca3af;
+  --accent: rgb(255 255 255 / 8%);
+  --accent-foreground: var(--foreground);
+  --destructive: #ef4444;
+  --border: var(--hairline);
+  --input: rgb(255 255 255 / 12%);
+  --ring: var(--brand);
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Per-program accents. Each track carries its own identity colour; components
+   set `--track` and the classes below mix it, so adding a program means adding
+   one token here plus one line of data rather than a new set of utilities.
+--------------------------------------------------------------------------- */
+:root {
+  --track-she-can-code: #ec4899;
+  --track-monpy: #10b981;
+  --track-cat-ai: #ef4444;
+  --track-cpp: #f59e0b;
+  --track-arduino: #06b6d4;
+  --track-lpp: #7c3aed;
+}
+
+/* Selected program in a track rail. */
+.track-chip-active {
+  border-color: color-mix(in oklab, var(--track) 45%, transparent);
+  background-color: color-mix(in oklab, var(--track) 12%, transparent);
+  color: color-mix(in oklab, var(--track) 88%, white);
+}
+
+/* Unselected program: still reads as its own colour, just quieter. */
+.track-chip-idle {
+  border-color: color-mix(in oklab, var(--track) 26%, transparent);
+  background-color: color-mix(in oklab, var(--track) 5%, transparent);
+  color: color-mix(in oklab, var(--track) 42%, white);
+}
+
+.track-chip-idle:hover {
+  border-color: color-mix(in oklab, var(--track) 42%, transparent);
+  background-color: color-mix(in oklab, var(--track) 10%, transparent);
+  color: color-mix(in oklab, var(--track) 70%, white);
+}
+
+/* Progress pill — colour-codes every program, selected or not. */
+.track-progress {
+  background-color: color-mix(in oklab, var(--track) 16%, transparent);
+  color: color-mix(in oklab, var(--track) 85%, white);
+}
+
+/* Tinted square that holds a program's icon. */
+.track-icon {
+  border: 1px solid color-mix(in oklab, var(--track) 30%, transparent);
+  background-color: color-mix(in oklab, var(--track) 14%, transparent);
+}
+
+/* Small label pill in the program's own colour. */
+.track-pill {
+  background-color: color-mix(in oklab, var(--track) 14%, transparent);
+  color: color-mix(in oklab, var(--track) 80%, white);
+}
+
+.track-text {
+  color: color-mix(in oklab, var(--track) 82%, white);
+}
+
+/* Card that lifts and picks up its program's colour on hover. */
+.track-card:hover {
+  border-color: color-mix(in oklab, var(--track) 38%, transparent);
+  box-shadow: 0 12px 40px -18px color-mix(in oklab, var(--track) 55%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+--------------------------------------------------------------------------- */
+
+/* Scroll-reveal, Mezorn easing: fast out, long settle. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal[data-shown='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Vertical text ticker: the outgoing line leaves upward, the next arrives
+   from below, both inside a clipped window. */
+@keyframes ticker-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ticker-line {
+  animation: ticker-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pulse-ring {
+  0% {
+    r: 6;
+    opacity: 0.55;
+  }
+  100% {
+    r: 26;
+    opacity: 0;
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 3.2s ease-out infinite;
+}
+
+/* 3D flip for the challenge problem card. */
+.flip-scene {
+  perspective: 1800px;
+}
+
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-inner[data-flipped='true'] {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-face-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .ticker-line,
+  .flip-inner,
+  .pulse-ring {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Editor gutter and textarea share one metric so line numbers stay aligned. */
+.code-surface {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 21px;
+  tab-size: 2;
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codely-service",
+  "main": "src/index.ts",
+
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "dev": {
+    "port": 4001,
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      // `database_name` is only used to look this binding up from the CLI
+      // (`wrangler d1 migrations apply codely …`); the id is what selects the
+      // remote database. Rename it if your D1 database is called something else.
+      "database_name": "codely",
+      "database_id": "fa9b5efa-ec8f-49e4-aa0e-db3732beab3b",
+      "migrations_dir": "./drizzle",
+    },
+  ],
+}

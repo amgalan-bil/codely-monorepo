@@ -1,0 +1,68 @@
+{
+  "name": "@codely/codely-service",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/codely/codely-service/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "dev": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx wrangler dev",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "deploy": {
+      "dependsOn": ["lint", "typecheck"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx wrangler deploy",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "cf-typegen": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx wrangler types",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "drizzle:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx drizzle-kit generate",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "drizzle:push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx drizzle-kit push",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "drizzle:studio": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx drizzle-kit studio",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "drizzle:migrate-local": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx wrangler d1 migrations apply codely --local",
+        "cwd": "apps/codely/codely-service"
+      }
+    },
+    "drizzle:migrate-remote": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx wrangler d1 migrations apply codely --remote",
+        "cwd": "apps/codely/codely-service"
+      }
+    }
+  }
+}

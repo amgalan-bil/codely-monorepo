@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "radix-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "css": "../../apps/codely/codely-web/src/app/global.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@codely/shadcn",
+    "utils": "@codely/shadcn/utils",
+    "ui": "@codely/shadcn/ui",
+    "lib": "@codely/shadcn/lib",
+    "hooks": "@codely/shadcn/hooks"
+  },
+  "iconLibrary": "lucide"
+}
