@@ -44,13 +44,15 @@ export function PackCard({ pack }: { pack: ChallengePack }) {
             <g stroke="#ffffff" strokeOpacity="0.16" strokeWidth="1.4">
               {rays.map((angle) => {
                 const radians = (angle * Math.PI) / 180;
+                // Whole pixels: Node and the browser disagree in the last digit
+                // of sin/cos, which breaks hydration if the raw float is used.
                 return (
                   <line
                     key={angle}
                     x1="100"
                     y1="130"
-                    x2={100 + Math.cos(radians) * 230}
-                    y2={130 + Math.sin(radians) * 230}
+                    x2={Math.round(100 + Math.cos(radians) * 230)}
+                    y2={Math.round(130 + Math.sin(radians) * 230)}
                   />
                 );
               })}

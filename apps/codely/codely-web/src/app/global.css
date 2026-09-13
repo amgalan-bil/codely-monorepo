@@ -270,11 +270,40 @@
   transform: rotateY(180deg);
 }
 
+/* Terminal caret: a solid block, blinking on a hard on/off like a real
+   terminal rather than fading. It holds solid while characters arrive. */
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.caret-block {
+  display: inline-block;
+  width: 0.62em;
+  height: 1.15em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background-color: var(--brand);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--brand) 70%, transparent);
+  animation: caret-blink 1.05s steps(1, end) infinite;
+}
+
+.caret-block[data-typing='true'] {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .ticker-line,
   .flip-inner,
-  .pulse-ring {
+  .pulse-ring,
+  .caret-block {
     animation: none !important;
     transition: none !important;
     opacity: 1;

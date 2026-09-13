@@ -4,7 +4,22 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/codely"
+      "path": "./apps/codely/codely-web-e2e"
+    },
+    {
+      "path": "./apps/codely/codely-web"
+    },
+    {
+      "path": "./libs/shadcn"
+    },
+    {
+      "path": "./libs/feature-auth"
+    },
+    {
+      "path": "./libs/shared-types"
+    },
+    {
+      "path": "./apps/codely/codely-service"
     }
   ]
 }

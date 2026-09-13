@@ -1,9 +1,13 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { AcademyPreview } from '@/components/academy-preview';
 import { BlockchainBg } from '@/components/blockchain-bg';
 import { ProgramCard } from '@/components/program-card';
 import { TestimonialCard, type Testimonial } from '@/components/testimonial-card';
+import { TypingLine } from '@/components/typing-line';
 import { programs } from '@/data/programs';
 
 const stats = [
@@ -54,21 +58,47 @@ const introCode = [
   },
   { indent: 0, parts: [['', '']] },
   { indent: 0, parts: [['start_journey', 'text-cyan-300'], ['(', 'text-zinc-400'], ['"You"', 'text-emerald-300'], [')', 'text-zinc-400']] },
-  { indent: 0, parts: [['> "Welcome, You! Let’s build something amazing"', 'text-zinc-500']] },
 ] as const;
 
+/**
+ * The pixel Ulaanbaatar illustration, once it has been added to
+ * public/brand/. Checked on the server so a missing file leaves the network
+ * on its own instead of rendering a broken image.
+ */
+function heroCity(): string | null {
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
+    if (existsSync(path.join(process.cwd(), 'public', 'brand', `hero-city.${ext}`))) {
+      return `/brand/hero-city.${ext}`;
+    }
+  }
+  return null;
+}
+
 export default function HomePage() {
+  const city = heroCity();
+
   return (
     <main>
       {/* ---------------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden border-b border-hairline">
+      <section className="relative flex min-h-[calc(100dvh-52px)] flex-col justify-center overflow-hidden border-b border-hairline">
+        {city ? (
+          <>
+            {/* Illustration sits at the bottom of the stack, dimmed and pushed
+                back so the headline keeps its contrast. */}
+            <Image
+              src={city}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-40"
+            />
+            <div aria-hidden className="absolute inset-0 bg-surface/55" />
+          </>
+        ) : null}
         <div className="absolute inset-0 text-white">
-          <BlockchainBg />
+          <BlockchainBg layout="full" />
         </div>
-        {/*
-          Drop a hero illustration at public/hero-city.png and it renders here
-          behind the network; until then the network alone carries the section.
-        */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(124_58_237/16%),transparent_62%)]"
@@ -78,7 +108,7 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-surface"
         />
 
-        <div className="relative mx-auto w-full max-w-[1130px] px-6 pb-24 pt-24 text-center">
+        <div className="relative mx-auto w-full max-w-[1130px] px-6 py-16 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 px-4 py-1.5 font-mono text-[11.5px] text-brand-soft">
             <span className="size-1.5 rounded-full bg-brand-soft" />
             Mongolia&apos;s 1st non-profit Coding Academy
@@ -115,7 +145,7 @@ export default function HomePage() {
           {/* Terminal card — decorative, so it is inert to assistive tech. */}
           <div
             aria-hidden
-            className="mx-auto mt-14 max-w-[600px] overflow-hidden rounded-xl border border-hairline bg-[#0d0d16] text-left shadow-[0_30px_80px_-30px_rgb(0_0_0/90%)]"
+            className="mx-auto mt-10 max-w-[600px] overflow-hidden rounded-xl border border-hairline bg-[#0d0d16] text-left shadow-[0_30px_80px_-30px_rgb(0_0_0/90%)]"
           >
             <div className="flex items-center gap-2 border-b border-hairline px-4 py-2.5">
               <span className="size-2.5 rounded-full bg-red-500/80" />
@@ -134,6 +164,12 @@ export default function HomePage() {
                   {line.parts[0][0] === '' ? ' ' : null}
                 </div>
               ))}
+              <div>
+                <TypingLine
+                  text="> “Welcome, You! Let’s build something amazing”"
+                  className="text-zinc-400"
+                />
+              </div>
             </pre>
           </div>
         </div>

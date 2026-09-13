@@ -2,6 +2,32 @@
 
 _Paused 2026-09-11. Build, typecheck and lint all pass; 140 routes prerender._
 
+## Resumed 2026-09-11 (second laptop)
+
+- The site was not in the working tree on this machine — it was in `git stash` as
+  **Teleport auto-stash**. Restored with `git stash apply`; the stash is **still kept**
+  as a backup and can be dropped once this work is committed. Nothing is committed yet.
+- Verified after restore: typecheck clean, lint clean, production build succeeds.
+- Browser pass done at desktop width across home, programs, program detail, academy,
+  course, lesson workspace, challenge packs, challenge workspace, community, profile.
+- Fixed: hydration mismatch on `/challenges` — `pack-card.tsx` ray endpoints now round
+  to whole pixels (Node and Chrome disagreed in the last digit of `sin`/`cos`).
+- Fixed: `next.config.js` pins `turbopack.root` to the monorepo; a stray `~/bun.lock`
+  was making Next infer the home directory as the workspace root.
+- Checked: every Unsplash placeholder URL returns 200; a blank hero seen once was just a
+  slow first load through the image optimizer.
+- Home hero now fills the viewport below the header (`min-h-[calc(100dvh-52px)]`), so the
+  stats row starts below the fold at 100% zoom.
+- `BlockchainBg` takes `layout="wide" | "full"`. Home uses `full` (16:10, centre column
+  kept clear); `/programs` keeps the default `wide` banner arrangement.
+- Terminal card's output line is typed live by `components/typing-line.tsx` behind a
+  purple block caret (`.caret-block` in `global.css`): solid while typing, hard blink
+  after. Progress is time-based so throttled background tabs still finish on time.
+- Pixel-city hero image: wired but waiting on the file. Drop it at
+  `apps/codely/codely-web/public/brand/hero-city.png` (or .jpg/.webp); the home page
+  checks for it on the server and renders it dimmed behind the network.
+- Start the dev server yourself with `bun run dev` from the repo root (localhost:3000).
+
 ## Where to pick up
 
 ```sh
@@ -87,7 +113,7 @@ Wired in `src/app/layout.tsx` via `next/font/google`, exposed as
 
 ## Next steps when resuming
 
-1. Visual pass in the browser — this was the step in progress when work paused.
+1. ~~Visual pass in the browser~~ — done 2026-09-11 (see above). Mobile widths not yet checked.
 2. Decide auth (Clerk?) and wire `signin` / `signup`.
 3. Extend the MN dictionary to page body copy.
 4. Replace Unsplash placeholders with Codely's own photography and logo files.

@@ -4,10 +4,13 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "importHelpers": true,
-    "isolatedModules": true,
-    "lib": ["es2022"],
+    "verbatimModuleSyntax": true,
+    "isolatedDeclarations": true,
+    "erasableSyntaxOnly": true,
+    "lib": ["es2024"],
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -15,7 +18,18 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022",
-    "customConditions": ["@codely/source"]
+    "target": "es2024",
+    "customConditions": ["@codely/source"],
+    "paths": {
+      "@codely/shadcn": ["./libs/shadcn/src/index.ts"],
+      "@codely/shadcn/utils": ["./libs/shadcn/src/lib/utils.ts"],
+      "@codely/shadcn/ui/*": ["./libs/shadcn/src/ui/*"],
+      "@codely/shadcn/lib/*": ["./libs/shadcn/src/lib/*"],
+      "@codely/shadcn/hooks/*": ["./libs/shadcn/src/hooks/*"],
+      "@codely/shared-types": ["./libs/shared-types/src/index.ts"],
+      "@codely/shared-types/*": ["./libs/shared-types/src/*"],
+      "@codely/feature-auth": ["./libs/feature-auth/src/index.ts"],
+      "@codely/feature-auth/*": ["./libs/feature-auth/src/*"]
+    }
   }
 }

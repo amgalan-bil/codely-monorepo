@@ -1,102 +1,105 @@
 # Codely
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Nx monorepo running **Nx 23.2 · Next.js 16 · React 19 · Tailwind CSS 4 · shadcn/ui (radix-nova) · TypeScript · Bun**.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Layout
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-
-## Run tasks
-
-To run the dev server for your app, use:
-
-```sh
-npx nx dev codely
+```
+apps/
+  codely/                      namespace (logical grouping)
+    codely-web/                Next.js app        → @codely/codely-web
+    codely-web-e2e/            Cypress E2E        → @codely/codely-web-e2e
+    codely-service/            GraphQL API worker → @codely/codely-service
+libs/
+  shadcn/                      shared UI library  → @codely/shadcn
+  feature-auth/                React library      → @codely/feature-auth
+  shared-types/                TS library         → @codely/shared-types
+docs/                          workspace notes
 ```
 
-To create a production bundle:
+Nx derives project names from `package.json#name`, so every target is addressed by its
+scoped name (`@codely/codely-web`, not `codely-web`).
+
+## Getting started
 
 ```sh
-npx nx build codely
+bun install
+bun run dev            # or: bunx nx dev @codely/codely-web
 ```
 
-To see all available targets to run for a project, run:
+| Task               | Script              | Nx equivalent                        |
+| ------------------ | ------------------- | ------------------------------------ |
+| Dev server         | `bun run dev`       | `bunx nx dev @codely/codely-web`     |
+| Production build   | `bun run build`     | `bunx nx build @codely/codely-web`   |
+| Serve the build    | `bun run start`     | `bunx nx start @codely/codely-web`   |
+| Unit tests         | `bun run test`      | `bunx nx run-many -t test`           |
+| E2E (Cypress)      | `bun run e2e`       | `bunx nx e2e @codely/codely-web-e2e` |
+| Lint               | `bun run lint`      | `bunx nx run-many -t lint`           |
+| Type check         | `bun run typecheck` | `bunx nx run-many -t typecheck`      |
+| Sync TS references | `bun run sync`      | `bunx nx sync`                       |
+| Format             | `bun run format`    | `bunx nx format:write`               |
+| Project graph      | `bun run graph`     | `bunx nx graph`                      |
+
+Only changed projects: `bunx nx affected -t build,test,lint`.
+
+## Shared UI
+
+Components live in `libs/shadcn/src/ui` and are written there by the shadcn CLI:
 
 ```sh
-npx nx show project codely
+bun run ui:add button card      # = shadcn add --cwd libs/shadcn button card
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+After adding, export the component from `libs/shadcn/src/index.ts` so auto-import picks it up.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Import shapes (all wired through `tsconfig.base.json#paths` and the lib's `package.json#exports`):
 
-## Add new projects
+```ts
+import { Button, Card } from '@codely/shadcn'; // barrel — best auto-import
+import { Button } from '@codely/shadcn/ui/button'; // per file — best tree-shaking
+import { cn } from '@codely/shadcn/utils';
+import { useIsMobile } from '@codely/shadcn/hooks/use-mobile';
+```
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+`@codely/shadcn/ui` (no component) and deep relative paths into `libs/` are not supported.
 
-Use the plugin's generator to create new projects.
+## Database and API
 
-To generate a new application, use:
+`@codely/codely-service` is an Apollo Server running on a Cloudflare Worker, reading and
+writing Cloudflare D1 through Drizzle. The Next.js app talks to it over HTTP from server
+components and server actions (`apps/codely/codely-web/src/lib/graphql.ts`), so no database
+credentials ever reach the browser.
 
 ```sh
-npx nx g @nx/next:app demo
+cp .env.example .env                                        # D1 credentials for drizzle-kit
+bunx nx run @codely/codely-service:drizzle:migrate-local     # create the local D1 schema
+bun run api                                                  # worker on http://localhost:4001
+bun run dev                                                  # app on http://localhost:3000
 ```
 
-To generate a new library, use:
+Then open [/snippets](http://localhost:3000/snippets) — it lists rows through `getSnippets`
+and writes through the `createUser`, `createSnippet` and `deleteSnippet` mutations.
+
+| Task                                 | Command                                                     |
+| ------------------------------------ | ----------------------------------------------------------- |
+| Generate a migration from the schema | `bunx nx run @codely/codely-service:drizzle:generate`       |
+| Apply migrations locally             | `bunx nx run @codely/codely-service:drizzle:migrate-local`  |
+| Apply migrations to remote D1        | `bunx nx run @codely/codely-service:drizzle:migrate-remote` |
+| Browse data                          | `bunx nx run @codely/codely-service:drizzle:studio`         |
+| Deploy the worker                    | `bunx nx run @codely/codely-service:deploy`                 |
+
+More detail in [apps/codely/codely-service/README.md](apps/codely/codely-service/README.md).
+
+## Adding projects
 
 ```sh
-npx nx g @nx/react:lib mylib
+bunx nx g @nx/next:app apps/{namespace}/{name} --style=css --linter=eslint
+bunx nx g @nx/react:library libs/{name} --bundler=none --unitTestRunner=none --style=none
+bunx nx g @nx/js:library libs/{name} --bundler=none --unitTestRunner=none
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+Then: add the namespace to `package.json#workspaces` (`apps/{namespace}/*`), add the path
+alias to `tsconfig.base.json`, run `bun install` and `bunx nx sync`.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Workspace conventions and the deviations from the setup guide are in
+[docs/setup-notes.md](docs/setup-notes.md).
